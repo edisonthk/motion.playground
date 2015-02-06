@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="jp">
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<meta name="description" content="">
+</head>
+<body>
+	<canvas></canvas>
+	<script>
+	var canvas = document.getElementsByTagName('canvas')[0];
+	var ctx = canvas.getContext("2d");
+	
+	// flag for triggle initialEvent when everything needed is set up
+	var triggle = 0;
+	
+	var bg = new Image();
+	bg.src="frame/table.jpg";
+	bg.onload = function(){
+		triggle ++;
+		if(triggle > 1){
+			initialEvent();
+		}
+	};
+	
+	var tmp ,
+		leadingzero_name,
+		frames_loaded_cnt = 0,		
+		f = [],
+		current_frame_index = 0,
+		animation_interval_id;
+	
+	for(var i = 0; i < 45; i+=1){
+		tmp = new Image();
+		leadingzero_name = "00000" + (98 + i);
+		leadingzero_name = leadingzero_name.substr(leadingzero_name.length-5);
+		tmp.src = "frame/dice_with_transparent/dice/dice_"+leadingzero_name+".png";
+		tmp.onload = function(){  
+			frames_loaded_cnt ++;
+			if(frames_loaded_cnt >= 45){
+				frames_loaded_callback();
+			}
+		};
+		f.push(tmp);
+	}
+	
+	// initial event
+	var initialEvent = function() {
+		ctx.drawImage(bg,0,0, canvas.width, canvas.height);
+	};
+	
+	// all frames is loaded callback
+	var frames_loaded_callback = function() {
+		current_frame_index = 0;
+		animation_interval_id = setInterval(function(){
+			if(current_frame_index >= f.length){
+				clearInterval(animation_interval_id);
+				console.log("done");
+			}else{
+				ctx.clearRect(0,0, canvas.width, canvas.height);
+				ctx.drawImage(bg,0,0, canvas.width, canvas.height);
+				ctx.drawImage(f[current_frame_index],0,0, canvas.width, canvas.height);
+			}
+			current_frame_index += 1;
+		}, 100);
+		
+	};
+	
+	// sizing event
+	var sizingEvent = function(){
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+		canvas.style.width = window.innerWidth + "px";
+		canvas.style.height = window.innerHeight + "px";
+		
+		triggle ++;
+		if(triggle > 1){
+			initialEvent();
+		}
+	};
+	window.onload = function(){
+		 sizingEvent();
+	};
+	var timeout_id;
+	window.onresize = function(){
+		clearTimeout(timeout_id);
+		timeout_id = setTimeout(function(){
+			sizingEvent();
+		}, 2000);
+	};
+	</script>
+</body>
+</html>
